@@ -192,7 +192,7 @@ class FlipPanel<T> extends StatefulWidget {
     this.direction,
   }) : super(key: key);
 
-  /// Create a flip panel for a fixed content number.
+  /// Create a flip panel from iterable source
   /// [itemBuilder] is called periodically in each time of [period]
   /// The content list is looped in [loop] times before finished.
   /// Setting [loop] to -1 makes flip animation run forever.
@@ -219,7 +219,7 @@ class FlipPanel<T> extends StatefulWidget {
       initValue = null,
       super(key: key);
 
-  /// Create a flip panel for an unspecified content number.
+  /// Create a flip panel from stream source
   /// [itemBuilder] is called whenever a new value is emitted from [itemStream]
   FlipPanel.stream({
     Key key,
@@ -386,76 +386,76 @@ class _FlipPanelState<T> extends State<FlipPanel> with TickerProviderStateMixin 
   Widget _buildUpperFlipPanel() =>
       widget.direction == FlipDirection.up
           ? Stack(
-        children: [
-          _upperChild1,
-          Transform(
-            alignment: Alignment.bottomCenter,
-            transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
-                Matrix4.rotationX(_isReversePhase ? _animation.value : math.pi / 2),
-            child: _upperChild2,
-          ),
-        ],
-      )
+            children: [
+              _upperChild1,
+              Transform(
+                alignment: Alignment.bottomCenter,
+                transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
+                    Matrix4.rotationX(_isReversePhase ? _animation.value : math.pi / 2),
+                child: _upperChild2,
+              ),
+            ],
+          )
           : Stack(
-        children: [
-          _upperChild2,
-          Transform(
-            alignment: Alignment.bottomCenter,
-            transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
-                Matrix4.rotationX(_isReversePhase ? math.pi / 2 : _animation.value),
-            child: _upperChild1,
-          ),
-        ],
-      );
+            children: [
+              _upperChild2,
+              Transform(
+                alignment: Alignment.bottomCenter,
+                transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
+                    Matrix4.rotationX(_isReversePhase ? math.pi / 2 : _animation.value),
+                child: _upperChild1,
+              ),
+            ],
+          );
 
   Widget _buildLowerFlipPanel() =>
       widget.direction == FlipDirection.up
           ? Stack(
-        children: [
-          _lowerChild2,
-          Transform(
-            alignment: Alignment.topCenter,
-            transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
-                Matrix4.rotationX(_isReversePhase ? math.pi / 2 : -_animation.value),
-            child: _lowerChild1,
+            children: [
+              _lowerChild2,
+              Transform(
+                alignment: Alignment.topCenter,
+                transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
+                    Matrix4.rotationX(_isReversePhase ? math.pi / 2 : -_animation.value),
+                child: _lowerChild1,
+              )
+            ],
           )
-        ],
-      )
           : Stack(
-        children: [
-          _lowerChild1,
-          Transform(
-            alignment: Alignment.topCenter,
-            transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
-                Matrix4.rotationX(_isReversePhase ? -_animation.value : math.pi / 2),
-            child: _lowerChild2,
-          )
-        ],
-      );
+            children: [
+              _lowerChild1,
+              Transform(
+                alignment: Alignment.topCenter,
+                transform: (Matrix4.identity()..setEntry(3, 2, _perspective)) *
+                    Matrix4.rotationX(_isReversePhase ? -_animation.value : math.pi / 2),
+                child: _lowerChild2,
+              )
+            ],
+          );
 
   Widget _buildPanel() {
     return _running
         ? Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildUpperFlipPanel(),
-        Padding(
-          padding: EdgeInsets.only(top: widget.spacing),
-        ),
-        _buildLowerFlipPanel(),
-      ],
-    )
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildUpperFlipPanel(),
+            Padding(
+              padding: EdgeInsets.only(top: widget.spacing),
+            ),
+            _buildLowerFlipPanel(),
+          ],
+        )
         : _isStreamMode && _currentValue == null
-        ? Container()
-        : Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _upperChild1,
-        Padding(
-          padding: EdgeInsets.only(top: widget.spacing),
-        ),
-        _lowerChild1
-      ],
-    );
+          ? Container()
+          : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _upperChild1,
+              Padding(
+                padding: EdgeInsets.only(top: widget.spacing),
+              ),
+              _lowerChild1
+            ],
+          );
   }
 }
