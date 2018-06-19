@@ -1,0 +1,19 @@
+name: flip_panel
+description: A package for flip panel with built-in animation
+version: 0.0.1
+author: hunghd <hunghd.yb@gmail.com>
+homepage:
+
+environment:
+  sdk: '>=1.19.0 <2.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+
