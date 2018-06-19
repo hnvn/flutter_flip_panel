@@ -2,7 +2,7 @@
 
 A package for flip panel with built-in animation
 
-<p align="center" spacing="20">
+<p>
 	<img src="./screenshots/flip_image.gif?raw=true" width="250" height="443"  />
 	<img src="./screenshots/flip_clock.gif?raw=true" width="250" height="443" />
 </p>
