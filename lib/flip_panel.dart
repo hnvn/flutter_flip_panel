@@ -194,7 +194,7 @@ class FlipPanel<T> extends StatefulWidget {
 
   /// Create a flip panel from iterable source
   /// [itemBuilder] is called periodically in each time of [period]
-  /// The content list is looped in [loop] times before finished.
+  /// The animation is looped in [loop] times before finished.
   /// Setting [loop] to -1 makes flip animation run forever.
   /// The [period] should be two times greater than [duration] of flip animation,
   /// if not the animation becomes jerky/stuttery.
