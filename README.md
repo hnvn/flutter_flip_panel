@@ -38,7 +38,7 @@ FlipPanel.builder(
 )
 ````
 
-Create a flip panel from stream:
+Create a flip panel from stream source:
 
 ````dart
 FlipPanel<int>.stream(
