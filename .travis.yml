@@ -2,3 +2,12 @@ language: dart
 
 dart:
  - dev
+
+before_script:
+ - git clone https://github.com/flutter/flutter.git -b alpha --depth 1
+ - ./flutter/bin/flutter doctor
+script:
+ - ./flutter/bin/flutter test
+cache:
+ directories:
+   - $HOME/.pub-cache
