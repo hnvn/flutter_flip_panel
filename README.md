@@ -1,4 +1,6 @@
-# flip_panel
+# Flip Panel
+
+[![pub package](https://img.shields.io/pub/v/flip_panel.svg)](https://pub.dartlang.org/packages/flip_panel)
 
 A package for flip panel with built-in animation
 
