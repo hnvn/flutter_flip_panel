@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +39,7 @@ class HomePage extends StatelessWidget {
           ListTile(
             title: Text('FlipClock'),
             onTap: () => Navigator.of(context).pushNamed('flip_clock'),
-          )
+          ),
         ],
       ),
     );

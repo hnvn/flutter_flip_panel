@@ -5,3 +5,7 @@
 ## [0.0.2]
 
 * Correct document
+
+## [0.0.3]
+
+* Fix bugs
