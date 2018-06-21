@@ -1,8 +1,6 @@
 # Flip Panel
 
-[![pub package](https://img.shields.io/pub/v/flip_panel.svg)](https://pub.dartlang.org/packages/flip_panel)
-
-[![Build Status](https://travis-ci.org/hnvn/flutter_flip_panel.svg?branch=master)](https://travis-ci.org/hnvn/flutter_flip_panel)
+[![pub package](https://img.shields.io/pub/v/flip_panel.svg)](https://pub.dartlang.org/packages/flip_panel) [![Build Status](https://travis-ci.org/hnvn/flutter_flip_panel.svg?branch=master)](https://travis-ci.org/hnvn/flutter_flip_panel)
 
 A package for flip panel with built-in animation
 
