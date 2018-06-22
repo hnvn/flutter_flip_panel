@@ -5,7 +5,20 @@ import 'dart:async';
 
 void main() {
 
-  testWidgets('test flip animation runs periodically', (tester) async {
+  testWidgets('FlipPanel.builder() can be constructed', (tester) async {
+    await tester.pumpWidget(FlipPanel.builder(
+        itemBuilder: (context, index) => Container(),
+        period: Duration(milliseconds: 1000),
+        itemsCount: 2));
+  });
+
+  testWidgets('FlipPanel.stream() can be constructed', (tester) async {
+    await tester.pumpWidget(FlipPanel.stream(
+        itemStream: Stream.empty(),
+        itemBuilder: (context, value) => Container()));
+  });
+
+  testWidgets('FlipPanel.builder() completes after expected loop number and displays expected value after animation finished', (tester) async {
     final digits = [0, 1, 2, 3];
     var count = 0;
 
@@ -31,8 +44,7 @@ void main() {
                 period: Duration(milliseconds: 1000),
                 duration: Duration(milliseconds: 500),
                 loop: 2,
-                itemsCount: digits.length
-            ),
+                itemsCount: digits.length),
           ),
         ),
       ),
@@ -50,12 +62,10 @@ void main() {
             .widgetList<Text>(find.byType(Text))
             .map((widget) => widget.data)
             .last,
-        equals('${digits.last}')
-    );
+        equals('${digits.last}'));
   });
 
-  testWidgets('test flip animation runs from stream', (tester) async {
-
+  testWidgets('FlipPanel.stream() displays expected value after animation finished', (tester) async {
     StreamController<int> controller = StreamController<int>();
 
     await tester.pumpWidget(
@@ -63,21 +73,21 @@ void main() {
         home: new Material(
           child: Center(
             child: FlipPanel.stream(
-                itemBuilder: (context, value) {
-                  return Container(
-                    color: Colors.black,
-                    padding: EdgeInsets.symmetric(horizontal: 6.0),
-                    child: Text(
-                      '$value',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30.0,
-                      ),
+              itemBuilder: (context, value) {
+                return Container(
+                  color: Colors.black,
+                  padding: EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    '$value',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30.0,
                     ),
-                  );
-                },
-                itemStream: controller.stream,
-                initValue: 0,
+                  ),
+                );
+              },
+              itemStream: controller.stream,
+              initValue: 0,
             ),
           ),
         ),
@@ -90,15 +100,12 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // verify the final value displayed
+    // verify the value displayed
     expect(
         tester
             .widgetList<Text>(find.byType(Text))
             .map((widget) => widget.data)
             .last,
-        equals('1')
-    );
-
+        equals('1'));
   });
-
 }
