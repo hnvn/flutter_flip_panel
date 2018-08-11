@@ -13,3 +13,7 @@
 ## [0.0.4]
 
 * Fix bugs (temporarily get around the matter of perspective transform)
+
+## [0.0.5]
+
+* re-config to support Dart2
