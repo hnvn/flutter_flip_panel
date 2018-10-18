@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
       routes: {
         'flip_image': (_) => AnimatedImagePage(),
         'flip_clock': (_) => FlipClockPage(),
+        'countdown_clock': (_) => CountdownClockPage(),
       },
       home: HomePage(),
     );
@@ -39,6 +40,10 @@ class HomePage extends StatelessWidget {
           ListTile(
             title: Text('FlipClock'),
             onTap: () => Navigator.of(context).pushNamed('flip_clock'),
+          ),
+          ListTile(
+            title: Text('CountdownClock'),
+            onTap: () => Navigator.of(context).pushNamed('countdown_clock'),
           ),
         ],
       ),
@@ -147,6 +152,28 @@ class FlipClockPage extends StatelessWidget {
         child: Center(
           child: FlipClock.simple(
             startTime: DateTime.now(),
+            digitColor: Colors.white,
+            backgroundColor: Colors.black,
+            digitSize: 48.0,
+            borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CountdownClockPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('FlipClock'),
+      ),
+      body: Container(
+        child: Center(
+          child: FlipClock.countdown(
+            duration: Duration(minutes: 1),
             digitColor: Colors.white,
             backgroundColor: Colors.black,
             digitSize: 48.0,
