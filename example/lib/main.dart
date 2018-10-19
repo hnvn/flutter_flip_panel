@@ -178,6 +178,7 @@ class CountdownClockPage extends StatelessWidget {
             backgroundColor: Colors.black,
             digitSize: 48.0,
             borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+            onDone: () => print('ih'),
           ),
         ),
       ),

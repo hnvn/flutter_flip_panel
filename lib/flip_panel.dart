@@ -12,6 +12,7 @@ class FlipClock extends StatelessWidget {
   Widget _separator;
   final DateTime startTime;
   final EdgeInsets spacing;
+  final FlipDirection flipDirection;
 
   /// Set countdown to true to have a countdown timer.
   final bool countdown;
@@ -27,6 +28,7 @@ class FlipClock extends StatelessWidget {
     @required this.startTime,
     this.countdown = false,
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
+    this.flipDirection = FlipDirection.up,
   })  : _showHours = true,
         _digitBuilder = digitBuilder,
         _separator = separator;
@@ -39,6 +41,7 @@ class FlipClock extends StatelessWidget {
     @required double digitSize,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
+    this.flipDirection = FlipDirection.up,
   })  : countdown = false,
         _showHours = true {
     _digitBuilder = (context, digit) => Container(
@@ -84,6 +87,7 @@ class FlipClock extends StatelessWidget {
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.onDone,
+    this.flipDirection = FlipDirection.up,
   })  : countdown = true,
         startTime = DateTime(2018, 1, 0, 0, 0, duration.inSeconds),
         _showHours = duration.inHours > 0 {
@@ -177,6 +181,7 @@ class FlipClock extends StatelessWidget {
           itemBuilder: _digitBuilder,
           duration: const Duration(milliseconds: 450),
           initValue: tensDigit(startTime),
+          direction: flipDirection,
         ),
       ),
       Padding(
@@ -186,6 +191,7 @@ class FlipClock extends StatelessWidget {
           itemBuilder: _digitBuilder,
           duration: const Duration(milliseconds: 450),
           initValue: onesDigit(startTime),
+          direction: flipDirection,
         ),
       ),
     ]);
