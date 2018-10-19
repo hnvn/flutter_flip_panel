@@ -1,3 +1,7 @@
+## [0.0.7] - 2018-10-19
+
+* Fix small analysis error.
+
 ## [0.0.6] - 2018-10-19
 
 * add countdown clock
