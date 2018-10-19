@@ -4,34 +4,35 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
-typedef Widget DigitBuilder(BuildContext, int);
+typedef Widget DigitBuilder(BuildContext context, int digit);
 
 @immutable
 class FlipClock extends StatelessWidget {
   DigitBuilder _digitBuilder;
-  Widget _separator;
+  final Widget _separator;
   final DateTime startTime;
   final EdgeInsets spacing;
   final FlipDirection flipDirection;
 
   /// Set countdown to true to have a countdown timer.
-  final bool countdown;
+  final bool countdownMode;
   final bool _showHours;
 
   /// Called when the countdown clock hits zero.
-  VoidCallback onDone;
+  final VoidCallback onDone;
 
   FlipClock({
     Key key,
     @required DigitBuilder digitBuilder,
     @required Widget separator,
     @required this.startTime,
-    this.countdown = false,
+    this.countdownMode = false,
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.flipDirection = FlipDirection.up,
   })  : _showHours = true,
         _digitBuilder = digitBuilder,
-        _separator = separator;
+        _separator = separator,
+        onDone = null;
 
   FlipClock.simple({
     Key key,
@@ -42,8 +43,25 @@ class FlipClock extends StatelessWidget {
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.flipDirection = FlipDirection.up,
-  })  : countdown = false,
-        _showHours = true {
+  })  : countdownMode = false,
+        _showHours = true,
+        onDone = null,
+        _separator = Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: borderRadius,
+          ),
+          width: 24.0,
+          height: 60.0,
+          alignment: Alignment.center,
+          child: Text(
+            ':',
+            style: TextStyle(
+              fontSize: digitSize,
+              color: digitColor,
+            ),
+          ),
+        ) {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: 44.0,
@@ -60,22 +78,6 @@ class FlipClock extends StatelessWidget {
                 color: digitColor),
           ),
         );
-    _separator = Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: borderRadius,
-      ),
-      width: 24.0,
-      height: 60.0,
-      alignment: Alignment.center,
-      child: Text(
-        ':',
-        style: TextStyle(
-          fontSize: digitSize,
-          color: digitColor,
-        ),
-      ),
-    );
   }
 
   FlipClock.countdown({
@@ -88,9 +90,25 @@ class FlipClock extends StatelessWidget {
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.onDone,
     this.flipDirection = FlipDirection.up,
-  })  : countdown = true,
+  })  : countdownMode = true,
         startTime = DateTime(2018, 1, 0, 0, 0, duration.inSeconds),
-        _showHours = duration.inHours > 0 {
+        _showHours = duration.inHours > 0,
+        _separator = Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: borderRadius,
+          ),
+          width: 24.0,
+          height: 60.0,
+          alignment: Alignment.center,
+          child: Text(
+            ':',
+            style: TextStyle(
+              fontSize: digitSize,
+              color: digitColor,
+            ),
+          ),
+        ) {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: 44.0,
@@ -107,22 +125,6 @@ class FlipClock extends StatelessWidget {
                 color: digitColor),
           ),
         );
-    _separator = Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: borderRadius,
-      ),
-      width: 24.0,
-      height: 60.0,
-      alignment: Alignment.center,
-      child: Text(
-        ':',
-        style: TextStyle(
-          fontSize: digitSize,
-          color: digitColor,
-        ),
-      ),
-    );
   }
 
   @override
@@ -132,11 +134,11 @@ class FlipClock extends StatelessWidget {
     final timeStream =
         Stream<DateTime>.periodic(Duration(milliseconds: 1000), (_) {
       var oldTime = time;
-      time = time.add(Duration(seconds: countdown ? -1 : 1));
+      time = time.add(Duration(seconds: countdownMode ? -1 : 1));
       if (oldTime.day != time.day) {
         time = oldTime;
         if (onDone != null) onDone();
-      } 
+      }
       return time;
     }).asBroadcastStream();
 
@@ -144,30 +146,32 @@ class FlipClock extends StatelessWidget {
     // TODO(efortuna): Instead, allow the user to specify the format of time instead.
     // Add hours if appropriate.
     if (_showHours) {
-      digitList.addAll([_buildSegment(timeStream, (DateTime time) => time.hour ~/ 10,
+      digitList.addAll([
+        _buildSegment(timeStream, (DateTime time) => time.hour ~/ 10,
             (DateTime time) => time.hour % 10, startTime),
-
         Padding(
           padding: spacing,
           child: _separator,
-        )]);
+        )
+      ]);
     }
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: digitList..addAll([
-        // Minutes
-        _buildSegment(timeStream, (DateTime time) => time.minute ~/ 10,
-            (DateTime time) => time.minute % 10, startTime),
+      children: digitList
+        ..addAll([
+          // Minutes
+          _buildSegment(timeStream, (DateTime time) => time.minute ~/ 10,
+              (DateTime time) => time.minute % 10, startTime),
 
-        Padding(
-          padding: spacing,
-          child: _separator,
-        ),
+          Padding(
+            padding: spacing,
+            child: _separator,
+          ),
 
-        // Seconds
-        _buildSegment(timeStream, (DateTime time) => time.second ~/ 10,
-            (DateTime time) => time.second % 10, startTime)
-      ]),
+          // Seconds
+          _buildSegment(timeStream, (DateTime time) => time.second ~/ 10,
+              (DateTime time) => time.second % 10, startTime)
+        ]),
     );
   }
 
@@ -200,10 +204,10 @@ class FlipClock extends StatelessWidget {
 
 /// Signature for a function that creates a widget for a given index, e.g., in a
 /// list.
-typedef Widget IndexedItemBuilder(BuildContext, int);
+typedef Widget IndexedItemBuilder(BuildContext context, int index);
 
 /// Signature for a function that creates a widget for a value emitted from a [Stream]
-typedef Widget StreamItemBuilder<T>(BuildContext, T);
+typedef Widget StreamItemBuilder<T>(BuildContext context, T type);
 
 /// A widget for flip panel with built-in animation
 /// Content of the panel is built from [IndexedItemBuilder] or [StreamItemBuilder]
