@@ -12,14 +12,25 @@ class FlipClock extends StatelessWidget {
   Widget _separator;
   final DateTime startTime;
   final EdgeInsets spacing;
+  final FlipDirection flipDirection;
+
+  /// Set countdown to true to have a countdown timer.
+  final bool countdown;
+  final bool _showHours;
+
+  /// Called when the countdown clock hits zero.
+  VoidCallback onDone;
 
   FlipClock({
     Key key,
     @required DigitBuilder digitBuilder,
     @required Widget separator,
     @required this.startTime,
+    this.countdown = false,
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
-  })  : _digitBuilder = digitBuilder,
+    this.flipDirection = FlipDirection.up,
+  })  : _showHours = true,
+        _digitBuilder = digitBuilder,
         _separator = separator;
 
   FlipClock.simple({
@@ -30,7 +41,56 @@ class FlipClock extends StatelessWidget {
     @required double digitSize,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
-  }) {
+    this.flipDirection = FlipDirection.up,
+  })  : countdown = false,
+        _showHours = true {
+    _digitBuilder = (context, digit) => Container(
+          alignment: Alignment.center,
+          width: 44.0,
+          height: 60.0,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: borderRadius,
+          ),
+          child: Text(
+            '$digit',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: digitSize,
+                color: digitColor),
+          ),
+        );
+    _separator = Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: borderRadius,
+      ),
+      width: 24.0,
+      height: 60.0,
+      alignment: Alignment.center,
+      child: Text(
+        ':',
+        style: TextStyle(
+          fontSize: digitSize,
+          color: digitColor,
+        ),
+      ),
+    );
+  }
+
+  FlipClock.countdown({
+    Key key,
+    @required Duration duration,
+    @required Color digitColor,
+    @required Color backgroundColor,
+    @required double digitSize,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
+    this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
+    this.onDone,
+    this.flipDirection = FlipDirection.up,
+  })  : countdown = true,
+        startTime = DateTime(2018, 1, 0, 0, 0, duration.inSeconds),
+        _showHours = duration.inHours > 0 {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: 44.0,
@@ -67,64 +127,37 @@ class FlipClock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int seconds = startTime.second;
-    int minutes = startTime.minute;
-    int hours = startTime.hour;
     var time = startTime;
 
     final timeStream =
         Stream<DateTime>.periodic(Duration(milliseconds: 1000), (_) {
-      time = time.add(const Duration(seconds: 1));
+      var oldTime = time;
+      time = time.add(Duration(seconds: countdown ? -1 : 1));
+      if (oldTime.day != time.day) {
+        time = oldTime;
+        if (onDone != null) onDone();
+      } 
       return time;
     }).asBroadcastStream();
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Hours
-        Padding(
-          padding: spacing,
-          child: FlipPanel<int>.stream(
-            itemStream: timeStream.map((time) => time.hour ~/ 10),
-            itemBuilder: _digitBuilder,
-            duration: const Duration(milliseconds: 450),
-            initValue: hours ~/ 10,
-          ),
-        ),
-        Padding(
-          padding: spacing,
-          child: FlipPanel<int>.stream(
-            itemStream: timeStream.map((time) => time.hour % 10),
-            itemBuilder: _digitBuilder,
-            duration: const Duration(milliseconds: 450),
-            initValue: hours % 10,
-          ),
-        ),
+    var digitList = <Widget>[];
+    // TODO(efortuna): Instead, allow the user to specify the format of time instead.
+    // Add hours if appropriate.
+    if (_showHours) {
+      digitList.addAll([_buildSegment(timeStream, (DateTime time) => time.hour ~/ 10,
+            (DateTime time) => time.hour % 10, startTime),
 
         Padding(
           padding: spacing,
           child: _separator,
-        ),
-
+        )]);
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: digitList..addAll([
         // Minutes
-        Padding(
-          padding: spacing,
-          child: FlipPanel<int>.stream(
-            itemStream: timeStream.map((time) => time.minute ~/ 10),
-            itemBuilder: _digitBuilder,
-            duration: const Duration(milliseconds: 450),
-            initValue: minutes ~/ 10,
-          ),
-        ),
-        Padding(
-          padding: spacing,
-          child: FlipPanel<int>.stream(
-            itemStream: timeStream.map((time) => time.minute % 10),
-            itemBuilder: _digitBuilder,
-            duration: const Duration(milliseconds: 450),
-            initValue: minutes % 10,
-          ),
-        ),
+        _buildSegment(timeStream, (DateTime time) => time.minute ~/ 10,
+            (DateTime time) => time.minute % 10, startTime),
 
         Padding(
           padding: spacing,
@@ -132,26 +165,36 @@ class FlipClock extends StatelessWidget {
         ),
 
         // Seconds
-        Padding(
-          padding: spacing,
-          child: FlipPanel<int>.stream(
-            itemStream: timeStream.map((time) => time.second ~/ 10),
-            itemBuilder: _digitBuilder,
-            duration: const Duration(milliseconds: 450),
-            initValue: seconds ~/ 10,
-          ),
-        ),
-        Padding(
-          padding: spacing,
-          child: FlipPanel<int>.stream(
-            itemStream: timeStream.map((time) => time.second % 10),
-            itemBuilder: _digitBuilder,
-            duration: const Duration(milliseconds: 450),
-            initValue: seconds % 10,
-          ),
-        ),
-      ],
+        _buildSegment(timeStream, (DateTime time) => time.second ~/ 10,
+            (DateTime time) => time.second % 10, startTime)
+      ]),
     );
+  }
+
+  _buildSegment(Stream<DateTime> timeStream, Function tensDigit,
+      Function onesDigit, DateTime startTime) {
+    return Row(children: [
+      Padding(
+        padding: spacing,
+        child: FlipPanel<int>.stream(
+          itemStream: timeStream.map<int>(tensDigit),
+          itemBuilder: _digitBuilder,
+          duration: const Duration(milliseconds: 450),
+          initValue: tensDigit(startTime),
+          direction: flipDirection,
+        ),
+      ),
+      Padding(
+        padding: spacing,
+        child: FlipPanel<int>.stream(
+          itemStream: timeStream.map<int>(onesDigit),
+          itemBuilder: _digitBuilder,
+          duration: const Duration(milliseconds: 450),
+          initValue: onesDigit(startTime),
+          direction: flipDirection,
+        ),
+      ),
+    ]);
   }
 }
 
