@@ -1,3 +1,7 @@
+## [0.0.8] - 2018-10-20
+
+* Fix typo
+
 ## [0.0.7] - 2018-10-19
 
 * Fix small analysis error.
