@@ -295,7 +295,7 @@ class FlipPanel<T> extends StatefulWidget {
 }
 
 class _FlipPanelState<T> extends State<FlipPanel>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation _animation;
   int _currentIndex;
