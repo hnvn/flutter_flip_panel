@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flip_panel/flip_panel.dart';
 import 'dart:async';
 
+import 'package:matcher/matcher.dart';
+
 void main() {
 
   testWidgets('FlipPanel.builder() can be constructed', (tester) async {

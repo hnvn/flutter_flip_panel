@@ -1,3 +1,13 @@
+///
+/// * author: hunghd
+/// * email: hunghd.yb@gmail.com
+///
+/// * contributors: Emily Fortuna (efortuna)
+///
+/// A package provides a [Widget] that simulates the 3D flip effect on flipclock
+///
+///
+
 library flip_panel;
 
 import 'package:flutter/material.dart';
@@ -6,6 +16,9 @@ import 'dart:math' as math;
 
 typedef Widget DigitBuilder(BuildContext, int);
 
+///
+/// A [Widget] provides a simple implementation of a flipclock using [FlipPanel]
+///
 @immutable
 class FlipClock extends StatelessWidget {
   DigitBuilder _digitBuilder;
@@ -202,20 +215,29 @@ class FlipClock extends StatelessWidget {
   }
 }
 
+///
 /// Signature for a function that creates a widget for a given index, e.g., in a
 /// list.
+///
 typedef Widget IndexedItemBuilder(BuildContext, int );
 
+///
 /// Signature for a function that creates a widget for a value emitted from a [Stream]
+///
 typedef Widget StreamItemBuilder<T>(BuildContext, T);
 
-/// A widget for flip panel with built-in animation
-/// Content of the panel is built from [IndexedItemBuilder] or [StreamItemBuilder]
 ///
-/// Note: the content size should be equal
-
+/// An enum defines all supported directions of [FlipPanel]
+///
 enum FlipDirection { up, down }
 
+///
+/// A [Widget] provides 3D flipp animation on a panel. The content of each panel
+/// is built from [IndexedItemBuilder] or [StreamItemBuilder]
+///
+/// Note: The size of every panel should be the same and the panel should be
+/// a static [Widget] (which is an instance of [StatelessWidget])
+///
 class FlipPanel<T> extends StatefulWidget {
   final IndexedItemBuilder indexedItemBuilder;
   final StreamItemBuilder<T> streamItemBuilder;
@@ -244,12 +266,15 @@ class FlipPanel<T> extends StatefulWidget {
     this.direction,
   }) : super(key: key);
 
+  ///
   /// Create a flip panel from iterable source
-  /// [itemBuilder] is called periodically in each time of [period]
-  /// The animation is looped in [loop] times before finished.
+  ///
+  /// * [itemBuilder] is called periodically in each time of [period]
+  /// * The animation is looped in [loop] times before finished.
   /// Setting [loop] to -1 makes flip animation run forever.
-  /// The [period] should be two times greater than [duration] of flip animation,
-  /// if not the animation becomes jerky/stuttery.
+  /// * The [period] should be two times greater than [duration] of flip animation,
+  /// otherwise the animation becomes jerky/stuttery.
+  ///
   FlipPanel.builder({
     Key key,
     @required IndexedItemBuilder itemBuilder,
@@ -271,8 +296,11 @@ class FlipPanel<T> extends StatefulWidget {
         initValue = null,
         super(key: key);
 
+  ///
   /// Create a flip panel from stream source
-  /// [itemBuilder] is called whenever a new value is emitted from [itemStream]
+  ///
+  /// * [itemBuilder] is called whenever a new value is emitted from [itemStream]
+  ///
   FlipPanel.stream({
     Key key,
     @required this.itemStream,
