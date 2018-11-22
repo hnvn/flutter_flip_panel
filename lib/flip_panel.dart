@@ -29,6 +29,7 @@ class FlipClock extends StatelessWidget {
 
   /// Set countdown to true to have a countdown timer.
   final bool countdownMode;
+
   final bool _showHours;
   final bool _showDays;
 
@@ -116,9 +117,11 @@ class FlipClock extends StatelessWidget {
     this.height = 60.0,
     this.width = 44.0,
   })  : countdownMode = true,
-        startTime = DateTime(2018, 1, 0, 0, 0, duration.inSeconds),
+        startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
         _showHours = duration.inHours > 0,
-        _showDays = false {
+        _showDays = false 
+        
+    {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: width,
@@ -155,8 +158,9 @@ class FlipClock extends StatelessWidget {
 
   FlipClock.reverseCountdown({
     Key key,
-    @required DateTime now,
-    @required DateTime dDay,
+    // @required DateTime now,
+    // @required DateTime dDay,
+    @required Duration duration,
     @required Color digitColor,
     @required Color backgroundColor,
     @required double digitSize,
@@ -168,16 +172,18 @@ class FlipClock extends StatelessWidget {
     this.width = 24.0,
   })  : countdownMode = true,
         //startTime = DateTime(2018, 1, 0, 0, 0, duration.inSeconds),
-        startTime = DateTime(
-            (now.year - dDay.year),
-            (now.month - dDay.month),
-            (now.day - dDay.day),
-            (now.hour - dDay.hour),
-            (now.minute - dDay.minute),
-            (now.second - now.second)
-          ),
+        // startTime = DateTime(
+        //     (now.year - dDay.year),
+        //     (now.month - dDay.month),
+        //     (now.day - dDay.day),
+        //     (now.hour - dDay.hour),
+        //     (now.minute - dDay.minute),
+        //     (now.second - now.second)
+        //   ),
+        startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
         _showHours = true,
         _showDays = true {
+          print("startTime.day = ${startTime.day}");
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: width,
@@ -216,7 +222,8 @@ class FlipClock extends StatelessWidget {
   Widget build(BuildContext context) {
     print("startTime is");
     print(startTime);
-    print("now month is ${}")
+    print("now is ${DateTime.now()}");
+    //print("dDay is ${dDay}");
 
     var time = startTime;
 
@@ -224,10 +231,11 @@ class FlipClock extends StatelessWidget {
         Stream<DateTime>.periodic(Duration(milliseconds: 1000), (_) {
       var oldTime = time;
       time = time.add(Duration(seconds: countdownMode ? -1 : 1));
-      if (oldTime.day != time.day) {
+      if (oldTime.day != time.day || oldTime.month != time.month) {
         time = oldTime;
         if (onDone != null) onDone();
       }
+      
       return time;
     }).asBroadcastStream();
 
@@ -236,9 +244,16 @@ class FlipClock extends StatelessWidget {
     // Add hours if appropriate.
 
     if (_showDays) {
+      if(time.day == 0){
+
+        print("time is 0");
+      } else if(time.day>0){
+
+        print(time.day);
+      }
       digitList.addAll([
-        _buildSegment(timeStream, (DateTime time) => time.day ~/ 10,
-            (DateTime time) => time.day % 10, startTime),
+        _buildSegment(timeStream, (DateTime time) => (time.day>0)? (time.day ~/ 10) : 0,
+            (DateTime time) => (time.day>0)? (time.day % 10) : 0, startTime),
         Padding(
           padding: spacing,
           child: _separator,

@@ -216,21 +216,27 @@ class ReverseCountdown extends StatelessWidget {
   //when using reverse countdown in your own app, change debugMode to false and provide the requied dDay values.
   final bool debugMode = false;
   DateTime now = DateTime.now();
-  //DateTime dDay = DateTime(2018, 11, 24, 0, 0, 0);
-  DateTime dDay = DateTime.now();
+  DateTime dDay = DateTime(2018, 11, 24, 0, 0, 0);
   
   @override
   Widget build(BuildContext context) {
+    
+    
+    dDay = (debugMode)? DateTime(now.year, now.month+1, now.day, now.hour+5, now.minute+30, now.second): dDay;
+    
+    Duration _duration = dDay.difference(now);
+   
+    
+
     return Scaffold(
+      
       appBar: AppBar(
         title: Text('ReverseCountdown'),
       ),
       body: Container(
         child: Center(
           child: FlipClock.reverseCountdown(
-            dDay: (debugMode)? DateTime(now.year, now.month+1, now.day, now.hour+5, now.minute+30, now.second): dDay,
-            now: DateTime.now(),
-            //duration: Duration(minutes: 1),
+            duration: _duration,
             digitColor: Colors.white,
             backgroundColor: Colors.black,
             digitSize: 35.0,
