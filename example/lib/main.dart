@@ -10,13 +10,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.light().copyWith(
-            scaffoldBackgroundColor: Colors.white,
-          ),
+        scaffoldBackgroundColor: Colors.white,
+      ),
       title: 'FlipPanel',
       routes: {
         'flip_image': (_) => AnimatedImagePage(),
         'flip_clock': (_) => FlipClockPage(),
         'countdown_clock': (_) => CountdownClockPage(),
+        'reverse_countdown': (_) => ReverseCountdown(),
       },
       home: HomePage(),
     );
@@ -24,7 +25,6 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +54,6 @@ class HomePage extends StatelessWidget {
 class AnimatedImagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     final imageWidth = 320.0;
     final imageHeight = 171.0;
     final toleranceFactor = 0.033;
@@ -74,64 +73,86 @@ class AnimatedImagePage extends StatelessWidget {
             children: [
               Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [0, 1, 2, 3, 4, 5, 6, 7,].map((count) =>
-                    FlipPanel.stream(
-                      itemStream: Stream.fromFuture(
-                          Future.delayed(Duration(milliseconds: random.nextInt(20) * 100), () => 1)
-                      ),
-                      itemBuilder: (_, value) =>
-                        value <= 0
-                          ? Container(
-                              color: Colors.white,
-                              width: widthFactor * imageWidth,
-                              height: heightFactor * imageHeight,
-                            )
-                          : ClipRect(
-                              child: Align(
-                                alignment: Alignment(-1.0 + count * 2 * 0.125 + count * toleranceFactor, -1.0),
-                                widthFactor: widthFactor,
-                                heightFactor: heightFactor,
-                                child: Image.asset(
-                                  'assets/flutter_cover.png',
-                                  width: imageWidth,
-                                  height: imageHeight,
+                children: [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                ]
+                    .map((count) => FlipPanel.stream(
+                          itemStream: Stream.fromFuture(Future.delayed(
+                              Duration(milliseconds: random.nextInt(20) * 100),
+                              () => 1)),
+                          itemBuilder: (_, value) => value <= 0
+                              ? Container(
+                                  color: Colors.white,
+                                  width: widthFactor * imageWidth,
+                                  height: heightFactor * imageHeight,
                                 )
-                              )
-                          ),
-                      initValue: 0,
-                      spacing: 0.0,
-                )).toList(),
+                              : ClipRect(
+                                  child: Align(
+                                      alignment: Alignment(
+                                          -1.0 +
+                                              count * 2 * 0.125 +
+                                              count * toleranceFactor,
+                                          -1.0),
+                                      widthFactor: widthFactor,
+                                      heightFactor: heightFactor,
+                                      child: Image.asset(
+                                        'assets/flutter_cover.png',
+                                        width: imageWidth,
+                                        height: imageHeight,
+                                      ))),
+                          initValue: 0,
+                          spacing: 0.0,
+                        ))
+                    .toList(),
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [0, 1, 2, 3, 4, 5, 6, 7,].map((count) =>
-                    FlipPanel.stream(
-                      itemStream: Stream.fromFuture(
-                          Future.delayed(Duration(milliseconds: random.nextInt(20) * 100), () => 1)
-                      ),
-                      itemBuilder: (_, value) =>
-                      value <= 0
-                          ? Container(
-                              color: Colors.white,
-                              width: widthFactor * imageWidth,
-                              height: heightFactor * imageHeight,
-                            )
-                          : ClipRect(
-                              child: Align(
-                                alignment: Alignment(-1.0 + count * 2 * 0.125 + count * toleranceFactor, 1.0),
-                                widthFactor: widthFactor,
-                                heightFactor: heightFactor,
-                                child: Image.asset(
-                                  'assets/flutter_cover.png',
-                                  width: imageWidth,
-                                  height: imageHeight,
+                children: [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                ]
+                    .map((count) => FlipPanel.stream(
+                          itemStream: Stream.fromFuture(Future.delayed(
+                              Duration(milliseconds: random.nextInt(20) * 100),
+                              () => 1)),
+                          itemBuilder: (_, value) => value <= 0
+                              ? Container(
+                                  color: Colors.white,
+                                  width: widthFactor * imageWidth,
+                                  height: heightFactor * imageHeight,
                                 )
-                          )
-                      ),
-                      initValue: 0,
-                      spacing: 0.0,
-                      direction: FlipDirection.down,
-                    )).toList(),
+                              : ClipRect(
+                                  child: Align(
+                                      alignment: Alignment(
+                                          -1.0 +
+                                              count * 2 * 0.125 +
+                                              count * toleranceFactor,
+                                          1.0),
+                                      widthFactor: widthFactor,
+                                      heightFactor: heightFactor,
+                                      child: Image.asset(
+                                        'assets/flutter_cover.png',
+                                        width: imageWidth,
+                                        height: imageHeight,
+                                      ))),
+                          initValue: 0,
+                          spacing: 0.0,
+                          direction: FlipDirection.down,
+                        ))
+                    .toList(),
               )
             ],
           ),
@@ -164,6 +185,29 @@ class FlipClockPage extends StatelessWidget {
 }
 
 class CountdownClockPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('FlipClock'),
+      ),
+      body: Container(
+        child: Center(
+          child: FlipClock.countdown(
+            duration: Duration(minutes: 1),
+            digitColor: Colors.white,
+            backgroundColor: Colors.black,
+            digitSize: 48.0,
+            borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+            onDone: () => print('ih'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ReverseCountdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
