@@ -45,6 +45,10 @@ class HomePage extends StatelessWidget {
             title: Text('CountdownClock'),
             onTap: () => Navigator.of(context).pushNamed('countdown_clock'),
           ),
+          ListTile(
+            title: Text('DaysToGo'),
+            onTap: () => Navigator.of(context).pushNamed('reverse_countdown'),
+          ),
         ],
       ),
     );
@@ -208,21 +212,30 @@ class CountdownClockPage extends StatelessWidget {
 }
 
 class ReverseCountdown extends StatelessWidget {
+  
+  //when using reverse countdown in your own app, change debugMode to false and provide the requied dDay values.
+  final bool debugMode = false;
+  DateTime now = DateTime.now();
+  //DateTime dDay = DateTime(2018, 11, 24, 0, 0, 0);
+  DateTime dDay = DateTime.now();
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('FlipClock'),
+        title: Text('ReverseCountdown'),
       ),
       body: Container(
         child: Center(
-          child: FlipClock.countdown(
-            duration: Duration(minutes: 1),
+          child: FlipClock.reverseCountdown(
+            dDay: (debugMode)? DateTime(now.year, now.month+1, now.day, now.hour+5, now.minute+30, now.second): dDay,
+            now: DateTime.now(),
+            //duration: Duration(minutes: 1),
             digitColor: Colors.white,
             backgroundColor: Colors.black,
-            digitSize: 48.0,
+            digitSize: 35.0,
             borderRadius: const BorderRadius.all(Radius.circular(3.0)),
-            onDone: () => print('ih'),
+            //onDone: () => print('ih'),
           ),
         ),
       ),
