@@ -33,7 +33,7 @@ class FlipClock extends StatelessWidget {
   final bool _showHours;
   final bool _showDays;
 
-  Duration dur;
+  Duration timeLeft;
 
   /// Called when the countdown clock hits zero.
   final VoidCallback onDone;
@@ -51,7 +51,7 @@ class FlipClock extends StatelessWidget {
     this.flipDirection = FlipDirection.up,
     this.height = 44.0,
     this.width = 60.0,
-    this.dur,
+    this.timeLeft,
   })  : _showHours = true,
         _showDays = false,
         _digitBuilder = digitBuilder,
@@ -69,7 +69,7 @@ class FlipClock extends StatelessWidget {
     this.flipDirection = FlipDirection.up,
     this.height = 60.0,
     this.width = 44.0,
-    this.dur,
+    this.timeLeft,
   })  : countdownMode = false,
         _showHours = true,
         _showDays = false,
@@ -122,7 +122,7 @@ class FlipClock extends StatelessWidget {
     this.width = 44.0,
     this.startTime,
   })  : countdownMode = true,
-        dur = duration,
+        timeLeft = duration,
         _showHours = duration.inHours > 0,
         _showDays = false 
         
@@ -176,22 +176,12 @@ class FlipClock extends StatelessWidget {
     this.height = 40.0,
     this.width = 24.0,
   })  : countdownMode = true,
-        //startTime = DateTime(2018, 1, 0, 0, 0, duration.inSeconds),
-        // startTime = DateTime(
-        //     (now.year - dDay.year),
-        //     (now.month - dDay.month),
-        //     (now.day - dDay.day),
-        //     (now.hour - dDay.hour),
-        //     (now.minute - dDay.minute),
-        //     (now.second - now.second)
-        //   ),
         startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
         _showHours = true,
         _showDays = true,
-        dur = duration
+        timeLeft = duration
         
          {
-          print("startTime.day = ${startTime.day}");
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: width,
@@ -228,17 +218,12 @@ class FlipClock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("startTime is");
-    print(startTime);
-    print("now is ${DateTime.now()}");
-    //print("dDay is ${dDay}");
-
+    
     var time = startTime;
-    print("time input is ${time}");
     final timeStream =
         Stream<DateTime>.periodic(Duration(milliseconds: 1000), (_) {
       var oldTime = time;
-      (countdownMode)? dur = dur - Duration(seconds: 1) : time = time.add(Duration(seconds: 1));
+      (countdownMode)? timeLeft = timeLeft - Duration(seconds: 1) : time = time.add(Duration(seconds: 1));
       
       
       if (!countdownMode && oldTime.day != time.day) {
@@ -255,8 +240,8 @@ class FlipClock extends StatelessWidget {
 
     if (_showDays) {
       digitList.addAll([
-        _buildSegment(timeStream, (DateTime time) =>  (dur.inDays>99)? 9 : (dur.inDays ~/ 10),
-            (DateTime time) => (dur.inDays>99)? 9 : (dur.inDays % 10), startTime),
+        _buildSegment(timeStream, (DateTime time) =>  (timeLeft.inDays>99)? 9 : (timeLeft.inDays ~/ 10),
+            (DateTime time) => (timeLeft.inDays>99)? 9 : (timeLeft.inDays % 10), startTime),
         Padding(
           padding: spacing,
           child: _separator,
@@ -266,8 +251,8 @@ class FlipClock extends StatelessWidget {
 
     if (_showHours) {
       digitList.addAll([
-        _buildSegment(timeStream, (DateTime time) => (countdownMode)? (dur.inHours%24) ~/ 10 : (time.hour) ~/10,
-            (DateTime time) => (countdownMode)? (dur.inHours%24) % 10 : (time.hour) %10, startTime),
+        _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inHours%24) ~/ 10 : (time.hour) ~/10,
+            (DateTime time) => (countdownMode)? (timeLeft.inHours%24) % 10 : (time.hour) %10, startTime),
         Padding(
           padding: spacing,
           child: _separator,
@@ -279,8 +264,8 @@ class FlipClock extends StatelessWidget {
       children: digitList
         ..addAll([
           // Minutes
-          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (dur.inMinutes%60) ~/ 10 : (time.minute) ~/10,
-              (DateTime time) => (countdownMode)? (dur.inMinutes%60) % 10 : (time.minute) %10, startTime),
+          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) ~/ 10 : (time.minute) ~/10,
+              (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) % 10 : (time.minute) %10, startTime),
 
           Padding(
             padding: spacing,
@@ -288,8 +273,8 @@ class FlipClock extends StatelessWidget {
           ),
 
           // Seconds
-          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (dur.inSeconds%60) ~/ 10 : (time.second) ~/10,
-              (DateTime time) => (countdownMode)? (dur.inSeconds%60) % 10 : (time.second) %10, startTime)
+          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) ~/ 10 : (time.second) ~/10,
+              (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) % 10 : (time.second) %10, startTime)
         ]),
     );
   }
