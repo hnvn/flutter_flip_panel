@@ -33,6 +33,8 @@ class FlipClock extends StatelessWidget {
   final bool _showHours;
   final bool _showDays;
 
+  Duration dur;
+
   /// Called when the countdown clock hits zero.
   final VoidCallback onDone;
 
@@ -49,6 +51,7 @@ class FlipClock extends StatelessWidget {
     this.flipDirection = FlipDirection.up,
     this.height = 44.0,
     this.width = 60.0,
+    this.dur,
   })  : _showHours = true,
         _showDays = false,
         _digitBuilder = digitBuilder,
@@ -66,6 +69,7 @@ class FlipClock extends StatelessWidget {
     this.flipDirection = FlipDirection.up,
     this.height = 60.0,
     this.width = 44.0,
+    this.dur,
   })  : countdownMode = false,
         _showHours = true,
         _showDays = false,
@@ -116,8 +120,9 @@ class FlipClock extends StatelessWidget {
     this.flipDirection = FlipDirection.up,
     this.height = 60.0,
     this.width = 44.0,
+    this.startTime,
   })  : countdownMode = true,
-        startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
+        dur = duration,
         _showHours = duration.inHours > 0,
         _showDays = false 
         
@@ -182,7 +187,10 @@ class FlipClock extends StatelessWidget {
         //   ),
         startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
         _showHours = true,
-        _showDays = true {
+        _showDays = true,
+        dur = duration
+        
+         {
           print("startTime.day = ${startTime.day}");
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
@@ -226,12 +234,14 @@ class FlipClock extends StatelessWidget {
     //print("dDay is ${dDay}");
 
     var time = startTime;
-
+    print("time input is ${time}");
     final timeStream =
         Stream<DateTime>.periodic(Duration(milliseconds: 1000), (_) {
       var oldTime = time;
-      time = time.add(Duration(seconds: countdownMode ? -1 : 1));
-      if (oldTime.day != time.day || oldTime.month != time.month) {
+      (countdownMode)? dur = dur - Duration(seconds: 1) : time = time.add(Duration(seconds: 1));
+      
+      
+      if (!countdownMode && oldTime.day != time.day) {
         time = oldTime;
         if (onDone != null) onDone();
       }
@@ -244,16 +254,9 @@ class FlipClock extends StatelessWidget {
     // Add hours if appropriate.
 
     if (_showDays) {
-      if(time.day == 0){
-
-        print("time is 0");
-      } else if(time.day>0){
-
-        print(time.day);
-      }
       digitList.addAll([
-        _buildSegment(timeStream, (DateTime time) => (time.day>0)? (time.day ~/ 10) : 0,
-            (DateTime time) => (time.day>0)? (time.day % 10) : 0, startTime),
+        _buildSegment(timeStream, (DateTime time) =>  (dur.inDays>99)? 9 : (dur.inDays ~/ 10),
+            (DateTime time) => (dur.inDays>99)? 9 : (dur.inDays % 10), startTime),
         Padding(
           padding: spacing,
           child: _separator,
@@ -263,8 +266,8 @@ class FlipClock extends StatelessWidget {
 
     if (_showHours) {
       digitList.addAll([
-        _buildSegment(timeStream, (DateTime time) => time.hour ~/ 10,
-            (DateTime time) => time.hour % 10, startTime),
+        _buildSegment(timeStream, (DateTime time) => (countdownMode)? (dur.inHours%24) ~/ 10 : (time.hour) ~/10,
+            (DateTime time) => (countdownMode)? (dur.inHours%24) % 10 : (time.hour) %10, startTime),
         Padding(
           padding: spacing,
           child: _separator,
@@ -276,8 +279,8 @@ class FlipClock extends StatelessWidget {
       children: digitList
         ..addAll([
           // Minutes
-          _buildSegment(timeStream, (DateTime time) => time.minute ~/ 10,
-              (DateTime time) => time.minute % 10, startTime),
+          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (dur.inMinutes%60) ~/ 10 : (time.minute) ~/10,
+              (DateTime time) => (countdownMode)? (dur.inMinutes%60) % 10 : (time.minute) %10, startTime),
 
           Padding(
             padding: spacing,
@@ -285,8 +288,8 @@ class FlipClock extends StatelessWidget {
           ),
 
           // Seconds
-          _buildSegment(timeStream, (DateTime time) => time.second ~/ 10,
-              (DateTime time) => time.second % 10, startTime)
+          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (dur.inSeconds%60) ~/ 10 : (time.second) ~/10,
+              (DateTime time) => (countdownMode)? (dur.inSeconds%60) % 10 : (time.second) %10, startTime)
         ]),
     );
   }
