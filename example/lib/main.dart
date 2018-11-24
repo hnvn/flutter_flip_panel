@@ -239,7 +239,7 @@ class ReverseCountdown extends StatelessWidget {
             duration: _duration,
             digitColor: Colors.white,
             backgroundColor: Colors.black,
-            digitSize: 35.0,
+            digitSize: 30.0,
             borderRadius: const BorderRadius.all(Radius.circular(3.0)),
             //onDone: () => print('ih'),
           ),

@@ -241,10 +241,21 @@ class FlipClock extends StatelessWidget {
     if (_showDays) {
       digitList.addAll([
         _buildSegment(timeStream, (DateTime time) =>  (timeLeft.inDays>99)? 9 : (timeLeft.inDays ~/ 10),
-            (DateTime time) => (timeLeft.inDays>99)? 9 : (timeLeft.inDays % 10), startTime),
-        Padding(
-          padding: spacing,
-          child: _separator,
+            (DateTime time) => (timeLeft.inDays>99)? 9 : (timeLeft.inDays % 10), startTime, "days"),
+        Column(
+          children: <Widget>[
+            Padding(
+              padding: spacing,
+              child: _separator,
+            ),
+            (_showDays)
+            ? Container(
+              color: Colors.black
+            )
+            : Container(
+              color: Colors.transparent,
+            )
+          ],
         )
       ]);
     }
@@ -252,57 +263,117 @@ class FlipClock extends StatelessWidget {
     if (_showHours) {
       digitList.addAll([
         _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inHours%24) ~/ 10 : (time.hour) ~/10,
-            (DateTime time) => (countdownMode)? (timeLeft.inHours%24) % 10 : (time.hour) %10, startTime),
-        Padding(
-          padding: spacing,
-          child: _separator,
+            (DateTime time) => (countdownMode)? (timeLeft.inHours%24) % 10 : (time.hour) %10, startTime, "Hours"),
+        Column(
+          children: <Widget>[
+            Padding(
+              padding: spacing,
+              child: _separator,
+            ),
+            (_showDays)
+            ? Container(
+              color: Colors.black
+            )
+            : Container(
+              color: Colors.transparent,
+            )
+          ],
         )
       ]);
     }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: digitList
-        ..addAll([
-          // Minutes
-          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) ~/ 10 : (time.minute) ~/10,
-              (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) % 10 : (time.minute) %10, startTime),
+    return Padding(
+      padding: const EdgeInsets.only(top: 180.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: digitList
+          ..addAll([
+            // Minutes
+            _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) ~/ 10 : (time.minute) ~/10,
+                (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) % 10 : (time.minute) %10, startTime, "minutes"),
 
-          Padding(
-            padding: spacing,
-            child: _separator,
+            Column(
+            children: <Widget>[
+              Padding(
+                padding: spacing,
+                child: _separator,
+              ),
+              (_showDays)
+              ? Container(
+                color: Colors.black
+              )
+              : Container(
+                color: Colors.transparent,
+              )
+            ],
           ),
 
-          // Seconds
-          _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) ~/ 10 : (time.second) ~/10,
-              (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) % 10 : (time.second) %10, startTime)
-        ]),
+            // Seconds
+            _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) ~/ 10 : (time.second) ~/10,
+                (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) % 10 : (time.second) %10, startTime, "seconds")
+          ]),
+      ),
     );
   }
 
   _buildSegment(Stream<DateTime> timeStream, Function tensDigit,
-      Function onesDigit, DateTime startTime) {
-    return Row(children: [
-      Padding(
-        padding: spacing,
-        child: FlipPanel<int>.stream(
-          itemStream: timeStream.map<int>(tensDigit),
-          itemBuilder: _digitBuilder,
-          duration: const Duration(milliseconds: 450),
-          initValue: tensDigit(startTime),
-          direction: flipDirection,
+      Function onesDigit, DateTime startTime, String id) {
+    return Column(
+      children: <Widget>[
+        Row(
+          children: [
+            Padding(
+              padding: spacing,
+              child: FlipPanel<int>.stream(
+                itemStream: timeStream.map<int>(tensDigit),
+                itemBuilder: _digitBuilder,
+                duration: const Duration(milliseconds: 450),
+                initValue: tensDigit(startTime),
+                direction: flipDirection,
+              ),
+            ),
+            Padding(
+              padding: spacing,
+              child: FlipPanel<int>.stream(
+                itemStream: timeStream.map<int>(onesDigit),
+                itemBuilder: _digitBuilder,
+                duration: const Duration(milliseconds: 450),
+                initValue: onesDigit(startTime),
+                direction: flipDirection,
+              ),
+            ),
+          ]
         ),
-      ),
-      Padding(
-        padding: spacing,
-        child: FlipPanel<int>.stream(
-          itemStream: timeStream.map<int>(onesDigit),
-          itemBuilder: _digitBuilder,
-          duration: const Duration(milliseconds: 450),
-          initValue: onesDigit(startTime),
-          direction: flipDirection,
-        ),
-      ),
-    ]);
+        (_showDays)
+        ? Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(1.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      id.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8.0,
+                        fontWeight: FontWeight.bold,
+                      ),  
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        )
+        : Row()
+      ],
+    );
   }
 }
 
