@@ -29,10 +29,17 @@ class FlipClock extends StatelessWidget {
 
   /// Set countdown to true to have a countdown timer.
   final bool countdownMode;
+
   final bool _showHours;
+  final bool _showDays;
+
+  Duration timeLeft;
 
   /// Called when the countdown clock hits zero.
   final VoidCallback onDone;
+
+  final double height;
+  final double width;
 
   FlipClock({
     Key key,
@@ -42,7 +49,11 @@ class FlipClock extends StatelessWidget {
     this.countdownMode = false,
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.flipDirection = FlipDirection.up,
+    this.height = 44.0,
+    this.width = 60.0,
+    this.timeLeft,
   })  : _showHours = true,
+        _showDays = false,
         _digitBuilder = digitBuilder,
         _separator = separator,
         onDone = null;
@@ -56,13 +67,17 @@ class FlipClock extends StatelessWidget {
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.flipDirection = FlipDirection.up,
+    this.height = 60.0,
+    this.width = 44.0,
+    this.timeLeft,
   })  : countdownMode = false,
         _showHours = true,
+        _showDays = false,
         onDone = null {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
-          width: 44.0,
-          height: 60.0,
+          width: width,
+          height: height,
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: borderRadius,
@@ -80,8 +95,8 @@ class FlipClock extends StatelessWidget {
         color: backgroundColor,
         borderRadius: borderRadius,
       ),
-      width: 24.0,
-      height: 60.0,
+      width: width / 2,
+      height: height,
       alignment: Alignment.center,
       child: Text(
         ':',
@@ -103,13 +118,19 @@ class FlipClock extends StatelessWidget {
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.onDone,
     this.flipDirection = FlipDirection.up,
+    this.height = 60.0,
+    this.width = 44.0,
+    this.startTime,
   })  : countdownMode = true,
-        startTime = DateTime(2018, 1, 0, 0, 0, duration.inSeconds),
-        _showHours = duration.inHours > 0 {
+        timeLeft = duration,
+        _showHours = duration.inHours > 0,
+        _showDays = false 
+        
+    {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
-          width: 44.0,
-          height: 60.0,
+          width: width,
+          height: height,
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: borderRadius,
@@ -127,8 +148,63 @@ class FlipClock extends StatelessWidget {
         color: backgroundColor,
         borderRadius: borderRadius,
       ),
-      width: 24.0,
-      height: 60.0,
+      width: width / 2,
+      height: height,
+      alignment: Alignment.center,
+      child: Text(
+        ':',
+        style: TextStyle(
+          fontSize: digitSize,
+          color: digitColor,
+        ),
+      ),
+    );
+  }
+
+  FlipClock.reverseCountdown({
+    Key key,
+    // @required DateTime now,
+    // @required DateTime dDay,
+    @required Duration duration,
+    @required Color digitColor,
+    @required Color backgroundColor,
+    @required double digitSize,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
+    this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
+    this.onDone,
+    this.flipDirection = FlipDirection.up,
+    this.height = 40.0,
+    this.width = 24.0,
+  })  : countdownMode = true,
+        startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
+        _showHours = true,
+        _showDays = true,
+        timeLeft = duration
+        
+         {
+    _digitBuilder = (context, digit) => Container(
+          alignment: Alignment.center,
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: borderRadius,
+          ),
+          child: Text(
+            '$digit',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: digitSize,
+                color: digitColor),
+          ),
+        );
+    _separator = Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: borderRadius,
+      ),
+      width: width / 2,
+      height: height,
       alignment: Alignment.center,
       child: Text(
         ':',
@@ -142,76 +218,162 @@ class FlipClock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     var time = startTime;
-
     final timeStream =
         Stream<DateTime>.periodic(Duration(milliseconds: 1000), (_) {
       var oldTime = time;
-      time = time.add(Duration(seconds: countdownMode ? -1 : 1));
-      if (oldTime.day != time.day) {
+      (countdownMode)? timeLeft = timeLeft - Duration(seconds: 1) : time = time.add(Duration(seconds: 1));
+      
+      
+      if (!countdownMode && oldTime.day != time.day) {
         time = oldTime;
         if (onDone != null) onDone();
       }
+      
       return time;
     }).asBroadcastStream();
 
     var digitList = <Widget>[];
     // TODO(efortuna): Instead, allow the user to specify the format of time instead.
     // Add hours if appropriate.
-    if (_showHours) {
+
+    if (_showDays) {
       digitList.addAll([
-        _buildSegment(timeStream, (DateTime time) => time.hour ~/ 10,
-            (DateTime time) => time.hour % 10, startTime),
-        Padding(
-          padding: spacing,
-          child: _separator,
+        _buildSegment(timeStream, (DateTime time) =>  (timeLeft.inDays>99)? 9 : (timeLeft.inDays ~/ 10),
+            (DateTime time) => (timeLeft.inDays>99)? 9 : (timeLeft.inDays % 10), startTime, "days"),
+        Column(
+          children: <Widget>[
+            Padding(
+              padding: spacing,
+              child: _separator,
+            ),
+            (_showDays)
+            ? Container(
+              color: Colors.black
+            )
+            : Container(
+              color: Colors.transparent,
+            )
+          ],
         )
       ]);
     }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: digitList
-        ..addAll([
-          // Minutes
-          _buildSegment(timeStream, (DateTime time) => time.minute ~/ 10,
-              (DateTime time) => time.minute % 10, startTime),
 
-          Padding(
-            padding: spacing,
-            child: _separator,
+    if (_showHours) {
+      digitList.addAll([
+        _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inHours%24) ~/ 10 : (time.hour) ~/10,
+            (DateTime time) => (countdownMode)? (timeLeft.inHours%24) % 10 : (time.hour) %10, startTime, "Hours"),
+        Column(
+          children: <Widget>[
+            Padding(
+              padding: spacing,
+              child: _separator,
+            ),
+            (_showDays)
+            ? Container(
+              color: Colors.black
+            )
+            : Container(
+              color: Colors.transparent,
+            )
+          ],
+        )
+      ]);
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 180.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: digitList
+          ..addAll([
+            // Minutes
+            _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) ~/ 10 : (time.minute) ~/10,
+                (DateTime time) => (countdownMode)? (timeLeft.inMinutes%60) % 10 : (time.minute) %10, startTime, "minutes"),
+
+            Column(
+            children: <Widget>[
+              Padding(
+                padding: spacing,
+                child: _separator,
+              ),
+              (_showDays)
+              ? Container(
+                color: Colors.black
+              )
+              : Container(
+                color: Colors.transparent,
+              )
+            ],
           ),
 
-          // Seconds
-          _buildSegment(timeStream, (DateTime time) => time.second ~/ 10,
-              (DateTime time) => time.second % 10, startTime)
-        ]),
+            // Seconds
+            _buildSegment(timeStream, (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) ~/ 10 : (time.second) ~/10,
+                (DateTime time) => (countdownMode)? (timeLeft.inSeconds%60) % 10 : (time.second) %10, startTime, "seconds")
+          ]),
+      ),
     );
   }
 
   _buildSegment(Stream<DateTime> timeStream, Function tensDigit,
-      Function onesDigit, DateTime startTime) {
-    return Row(children: [
-      Padding(
-        padding: spacing,
-        child: FlipPanel<int>.stream(
-          itemStream: timeStream.map<int>(tensDigit),
-          itemBuilder: _digitBuilder,
-          duration: const Duration(milliseconds: 450),
-          initValue: tensDigit(startTime),
-          direction: flipDirection,
+      Function onesDigit, DateTime startTime, String id) {
+    return Column(
+      children: <Widget>[
+        Row(
+          children: [
+            Padding(
+              padding: spacing,
+              child: FlipPanel<int>.stream(
+                itemStream: timeStream.map<int>(tensDigit),
+                itemBuilder: _digitBuilder,
+                duration: const Duration(milliseconds: 450),
+                initValue: tensDigit(startTime),
+                direction: flipDirection,
+              ),
+            ),
+            Padding(
+              padding: spacing,
+              child: FlipPanel<int>.stream(
+                itemStream: timeStream.map<int>(onesDigit),
+                itemBuilder: _digitBuilder,
+                duration: const Duration(milliseconds: 450),
+                initValue: onesDigit(startTime),
+                direction: flipDirection,
+              ),
+            ),
+          ]
         ),
-      ),
-      Padding(
-        padding: spacing,
-        child: FlipPanel<int>.stream(
-          itemStream: timeStream.map<int>(onesDigit),
-          itemBuilder: _digitBuilder,
-          duration: const Duration(milliseconds: 450),
-          initValue: onesDigit(startTime),
-          direction: flipDirection,
-        ),
-      ),
-    ]);
+        (_showDays)
+        ? Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(1.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      id.toUpperCase(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8.0,
+                        fontWeight: FontWeight.bold,
+                      ),  
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        )
+        : Row()
+      ],
+    );
   }
 }
 
@@ -219,7 +381,7 @@ class FlipClock extends StatelessWidget {
 /// Signature for a function that creates a widget for a given index, e.g., in a
 /// list.
 ///
-typedef Widget IndexedItemBuilder(BuildContext, int );
+typedef Widget IndexedItemBuilder(BuildContext, int);
 
 ///
 /// Signature for a function that creates a widget for a value emitted from a [Stream]
