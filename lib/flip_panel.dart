@@ -2,7 +2,7 @@
 /// * author: hunghd
 /// * email: hunghd.yb@gmail.com
 ///
-/// * contributors: Emily Fortuna (efortuna)
+/// * contributors: Emily Fortuna (efortuna), Sunit Gautam (gsunit)
 ///
 /// A package provides a [Widget] that simulates the 3D flip effect on flipclock
 ///

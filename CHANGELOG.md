@@ -1,3 +1,7 @@
+## [0.0.9] - 2018-11-27
+
+* add more UI implementation for `FlipClock`
+
 ## [0.0.8] - 2018-10-20
 
 * Fix typo
