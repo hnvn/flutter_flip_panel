@@ -1,3 +1,7 @@
+## [1.0.0] - 2019-02-09
+
+* stop the clock when it reaches zero in countdown mode
+
 ## [0.0.9] - 2018-11-27
 
 * add more UI implementation for `FlipClock`
