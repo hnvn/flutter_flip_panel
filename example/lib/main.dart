@@ -113,6 +113,7 @@ class AnimatedImagePage extends StatelessWidget {
                                       ))),
                           initValue: 0,
                           spacing: 0.0,
+                          direction: FlipDirection.up,
                         ))
                     .toList(),
               ),
@@ -173,8 +174,9 @@ class FlipClockPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('FlipClock'),
       ),
-      body: Container(
-        child: Center(
+      body: Center(
+        child: SizedBox(
+          height: 64.0,
           child: FlipClock.simple(
             startTime: DateTime.now(),
             digitColor: Colors.white,
@@ -195,8 +197,9 @@ class CountdownClockPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('FlipClock'),
       ),
-      body: Container(
-        child: Center(
+      body: Center(
+        child: SizedBox(
+          height: 64.0,
           child: FlipClock.countdown(
             duration: Duration(minutes: 1),
             digitColor: Colors.white,
@@ -212,29 +215,27 @@ class CountdownClockPage extends StatelessWidget {
 }
 
 class ReverseCountdown extends StatelessWidget {
-  
   //when using reverse countdown in your own app, change debugMode to false and provide the requied dDay values.
   final bool debugMode = true;
   DateTime now = DateTime.now();
   DateTime dDay = DateTime(2018, 11, 26, 0, 0, 0);
-  
+
   @override
   Widget build(BuildContext context) {
-    
-    
-    dDay = (debugMode)? DateTime(now.year, now.month+2, now.day, now.hour, now.minute, now.second+10): dDay;
-    
+    dDay = (debugMode)
+        ? DateTime(now.year, now.month + 2, now.day, now.hour, now.minute,
+            now.second + 10)
+        : dDay;
+
     Duration _duration = dDay.difference(now);
-   
-    
 
     return Scaffold(
-      
       appBar: AppBar(
         title: Text('ReverseCountdown'),
       ),
-      body: Container(
-        child: Center(
+      body: Center(
+        child: SizedBox(
+          height: 64.0,
           child: FlipClock.reverseCountdown(
             duration: _duration,
             digitColor: Colors.white,

@@ -1,3 +1,8 @@
+## [1.0.1] - 2019-11-21
+
+* remove huge top padding
+* change default `direction` to `FlipDirection.down`
+
 ## [1.0.0] - 2019-02-09
 
 * stop the clock when it reaches zero in countdown mode
