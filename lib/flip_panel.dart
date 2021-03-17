@@ -40,6 +40,7 @@ class FlipClock extends StatelessWidget {
 
   final double height;
   final double width;
+  final double middleSpacing;
 
   FlipClock({
     Key key,
@@ -52,6 +53,7 @@ class FlipClock extends StatelessWidget {
     this.height = 44.0,
     this.width = 60.0,
     this.timeLeft,
+    this.middleSpacing = 0.5,
   })  : _showHours = true,
         _showDays = false,
         _digitBuilder = digitBuilder,
@@ -70,6 +72,7 @@ class FlipClock extends StatelessWidget {
     this.height = 60.0,
     this.width = 44.0,
     this.timeLeft,
+    this.middleSpacing = 0.5,
   })  : countdownMode = false,
         _showHours = true,
         _showDays = false,
@@ -114,6 +117,7 @@ class FlipClock extends StatelessWidget {
     @required Color digitColor,
     @required Color backgroundColor,
     @required double digitSize,
+    Widget separator,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.onDone,
@@ -121,6 +125,7 @@ class FlipClock extends StatelessWidget {
     this.height = 60.0,
     this.width = 44.0,
     this.startTime,
+    this.middleSpacing = 0.5,
   })  : countdownMode = true,
         timeLeft = duration,
         _showHours = duration.inHours > 0,
@@ -141,7 +146,7 @@ class FlipClock extends StatelessWidget {
                 color: digitColor),
           ),
         );
-    _separator = Container(
+    _separator = separator != null ? separator : Container(
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: borderRadius,
@@ -167,12 +172,14 @@ class FlipClock extends StatelessWidget {
     @required Color digitColor,
     @required Color backgroundColor,
     @required double digitSize,
+    Widget separator,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.onDone,
     this.flipDirection = FlipDirection.down,
     this.height = 40.0,
     this.width = 24.0,
+    this.middleSpacing = 0.5,
   })  : countdownMode = true,
         startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
         _showHours = true,
@@ -194,7 +201,7 @@ class FlipClock extends StatelessWidget {
                 color: digitColor),
           ),
         );
-    _separator = Container(
+    _separator = separator != null ? separator : Container(
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: borderRadius,
@@ -348,6 +355,7 @@ class FlipClock extends StatelessWidget {
               duration: const Duration(milliseconds: 450),
               initValue: tensDigit(startTime),
               direction: flipDirection,
+              spacing: middleSpacing,
             ),
           ),
           Padding(
@@ -358,6 +366,7 @@ class FlipClock extends StatelessWidget {
               duration: const Duration(milliseconds: 450),
               initValue: onesDigit(startTime),
               direction: flipDirection,
+              spacing: middleSpacing,
             ),
           ),
         ]),
