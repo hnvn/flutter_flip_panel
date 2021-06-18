@@ -513,9 +513,9 @@ class _FlipPanelState<T> extends State<FlipPanel>
   final _zeroAngle =
       0.0001; // There's something wrong in the perspective transform, I use a very small value instead of zero to temporarily get it around.
   late int _loop;
-  late T _currentValue, _nextValue;
-  late Timer _timer;
-  late StreamSubscription<T> _subscription;
+  T? _currentValue, _nextValue;
+  Timer? _timer;
+  StreamSubscription<T>? _subscription;
 
   Widget? _child1, _child2;
   Widget? _upperChild1, _upperChild2;
@@ -561,7 +561,7 @@ class _FlipPanelState<T> extends State<FlipPanel>
           _isReversePhase = false;
           _controller.forward();
         } else {
-          _timer.cancel();
+          _timer!.cancel();
           _currentIndex = (_currentIndex! + 1) % widget.itemsCount!;
           setState(() {
             _running = false;
@@ -590,8 +590,8 @@ class _FlipPanelState<T> extends State<FlipPanel>
   @override
   void dispose() {
     _controller.dispose();
-    if (_subscription != null) _subscription.cancel();
-    if (_timer != null) _timer.cancel();
+    if (_subscription != null) _subscription!.cancel();
+    if (_timer != null) _timer!.cancel();
     super.dispose();
   }
 
