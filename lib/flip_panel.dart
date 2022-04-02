@@ -7,7 +7,6 @@
 /// A package provides a [Widget] that simulates the 3D flip effect on flipclock
 ///
 ///
-
 library flip_panel;
 
 import 'package:flutter/material.dart';
@@ -19,11 +18,11 @@ typedef Widget DigitBuilder(BuildContext, int);
 ///
 /// A [Widget] provides a simple implementation of a flipclock using [FlipPanel]
 ///
-@immutable
+// ignore: must_be_immutable
 class FlipClock extends StatelessWidget {
-  DigitBuilder _digitBuilder;
-  Widget _separator;
-  final DateTime startTime;
+  late DigitBuilder _digitBuilder;
+  late Widget _separator;
+  late DateTime startTime;
   final EdgeInsets spacing;
   final FlipDirection flipDirection;
 
@@ -33,19 +32,19 @@ class FlipClock extends StatelessWidget {
   final bool _showHours;
   final bool _showDays;
 
-  Duration timeLeft;
+  Duration? timeLeft;
 
   /// Called when the countdown clock hits zero.
-  final VoidCallback onDone;
+  final VoidCallback? onDone;
 
   final double height;
   final double width;
 
   FlipClock({
-    Key key,
-    @required DigitBuilder digitBuilder,
-    @required Widget separator,
-    @required this.startTime,
+    Key? key,
+    required DigitBuilder digitBuilder,
+    required Widget separator,
+    required this.startTime,
     this.countdownMode = false,
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.flipDirection = FlipDirection.down,
@@ -56,14 +55,15 @@ class FlipClock extends StatelessWidget {
         _showDays = false,
         _digitBuilder = digitBuilder,
         _separator = separator,
-        onDone = null;
+        onDone = null,
+        super(key: key);
 
   FlipClock.simple({
-    Key key,
-    @required this.startTime,
-    @required Color digitColor,
-    @required Color backgroundColor,
-    @required double digitSize,
+    Key? key,
+    required this.startTime,
+    required Color digitColor,
+    required Color backgroundColor,
+    required double digitSize,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.flipDirection = FlipDirection.down,
@@ -73,7 +73,8 @@ class FlipClock extends StatelessWidget {
   })  : countdownMode = false,
         _showHours = true,
         _showDays = false,
-        onDone = null {
+        onDone = null,
+        super(key: key) {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: width,
@@ -109,22 +110,23 @@ class FlipClock extends StatelessWidget {
   }
 
   FlipClock.countdown({
-    Key key,
-    @required Duration duration,
-    @required Color digitColor,
-    @required Color backgroundColor,
-    @required double digitSize,
+    Key? key,
+    required Duration duration,
+    required Color digitColor,
+    required Color backgroundColor,
+    required double digitSize,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.onDone,
     this.flipDirection = FlipDirection.down,
     this.height = 60.0,
     this.width = 44.0,
-    this.startTime,
   })  : countdownMode = true,
+        startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
         timeLeft = duration,
         _showHours = duration.inHours > 0,
-        _showDays = false {
+        _showDays = false,
+        super(key: key) {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: width,
@@ -160,13 +162,13 @@ class FlipClock extends StatelessWidget {
   }
 
   FlipClock.reverseCountdown({
-    Key key,
-    // @required DateTime now,
-    // @required DateTime dDay,
-    @required Duration duration,
-    @required Color digitColor,
-    @required Color backgroundColor,
-    @required double digitSize,
+    Key? key,
+    // required DateTime now,
+    // required DateTime dDay,
+    required Duration duration,
+    required Color digitColor,
+    required Color backgroundColor,
+    required double digitSize,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(0.0)),
     this.spacing = const EdgeInsets.symmetric(horizontal: 2.0),
     this.onDone,
@@ -177,7 +179,8 @@ class FlipClock extends StatelessWidget {
         startTime = DateTime(2018, 0, 0, 0, 0, duration.inSeconds),
         _showHours = true,
         _showDays = true,
-        timeLeft = duration {
+        timeLeft = duration,
+        super(key: key) {
     _digitBuilder = (context, digit) => Container(
           alignment: Alignment.center,
           width: width,
@@ -216,21 +219,21 @@ class FlipClock extends StatelessWidget {
   Widget build(BuildContext context) {
     var time = startTime;
     final initStream =
-        Stream<DateTime>.periodic(Duration(milliseconds: 1000), (_) {
+        Stream<DateTime>.periodic(const Duration(milliseconds: 1000), (_) {
       var oldTime = time;
       (countdownMode)
-          ? timeLeft = timeLeft - Duration(seconds: 1)
-          : time = time.add(Duration(seconds: 1));
+          ? timeLeft = timeLeft! - const Duration(seconds: 1)
+          : time = time.add(const Duration(seconds: 1));
 
       if (!countdownMode && oldTime.day != time.day) {
         time = oldTime;
-        if (onDone != null) onDone();
+        if (onDone != null) onDone!();
       }
 
       return time;
     });
     final timeStream =
-        (countdownMode ? initStream.take(timeLeft.inSeconds) : initStream)
+        (countdownMode ? initStream.take(timeLeft!.inSeconds) : initStream)
             .asBroadcastStream();
 
     var digitList = <Widget>[];
@@ -242,9 +245,9 @@ class FlipClock extends StatelessWidget {
         _buildSegment(
             timeStream,
             (DateTime time) =>
-                (timeLeft.inDays > 99) ? 9 : (timeLeft.inDays ~/ 10),
+                (timeLeft!.inDays > 99) ? 9 : (timeLeft!.inDays ~/ 10),
             (DateTime time) =>
-                (timeLeft.inDays > 99) ? 9 : (timeLeft.inDays % 10),
+                (timeLeft!.inDays > 99) ? 9 : (timeLeft!.inDays % 10),
             startTime,
             "days"),
         Column(
@@ -268,10 +271,10 @@ class FlipClock extends StatelessWidget {
         _buildSegment(
             timeStream,
             (DateTime time) => (countdownMode)
-                ? (timeLeft.inHours % 24) ~/ 10
+                ? (timeLeft!.inHours % 24) ~/ 10
                 : (time.hour) ~/ 10,
             (DateTime time) => (countdownMode)
-                ? (timeLeft.inHours % 24) % 10
+                ? (timeLeft!.inHours % 24) % 10
                 : (time.hour) % 10,
             startTime,
             "Hours"),
@@ -298,10 +301,10 @@ class FlipClock extends StatelessWidget {
           _buildSegment(
               timeStream,
               (DateTime time) => (countdownMode)
-                  ? (timeLeft.inMinutes % 60) ~/ 10
+                  ? (timeLeft!.inMinutes % 60) ~/ 10
                   : (time.minute) ~/ 10,
               (DateTime time) => (countdownMode)
-                  ? (timeLeft.inMinutes % 60) % 10
+                  ? (timeLeft!.inMinutes % 60) % 10
                   : (time.minute) % 10,
               startTime,
               "minutes"),
@@ -324,10 +327,10 @@ class FlipClock extends StatelessWidget {
           _buildSegment(
               timeStream,
               (DateTime time) => (countdownMode)
-                  ? (timeLeft.inSeconds % 60) ~/ 10
+                  ? (timeLeft!.inSeconds % 60) ~/ 10
                   : (time.second) ~/ 10,
               (DateTime time) => (countdownMode)
-                  ? (timeLeft.inSeconds % 60) % 10
+                  ? (timeLeft!.inSeconds % 60) % 10
                   : (time.second) % 10,
               startTime,
               "seconds")
@@ -343,7 +346,8 @@ class FlipClock extends StatelessWidget {
           Padding(
             padding: spacing,
             child: FlipPanel<int>.stream(
-              itemStream: timeStream.map<int>(tensDigit),
+              itemStream:
+                  timeStream.map<int>(tensDigit as int Function(DateTime)),
               itemBuilder: _digitBuilder,
               duration: const Duration(milliseconds: 450),
               initValue: tensDigit(startTime),
@@ -353,7 +357,8 @@ class FlipClock extends StatelessWidget {
           Padding(
             padding: spacing,
             child: FlipPanel<int>.stream(
-              itemStream: timeStream.map<int>(onesDigit),
+              itemStream:
+                  timeStream.map<int>(onesDigit as int Function(DateTime)),
               itemBuilder: _digitBuilder,
               duration: const Duration(milliseconds: 450),
               initValue: onesDigit(startTime),
@@ -369,14 +374,14 @@ class FlipClock extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(3.0),
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.black,
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(2.0),
                           child: Text(
                             id.toUpperCase(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 8.0,
                               fontWeight: FontWeight.bold,
@@ -418,20 +423,20 @@ enum FlipDirection { up, down }
 /// a static [Widget] (which is an instance of [StatelessWidget])
 ///
 class FlipPanel<T> extends StatefulWidget {
-  final IndexedItemBuilder indexedItemBuilder;
-  final StreamItemBuilder<T> streamItemBuilder;
-  final Stream<T> itemStream;
-  final int itemsCount;
-  final Duration period;
-  final Duration duration;
-  final int loop;
-  final int startIndex;
-  final T initValue;
-  final double spacing;
-  final FlipDirection direction;
+  final IndexedItemBuilder? indexedItemBuilder;
+  final StreamItemBuilder<T>? streamItemBuilder;
+  final Stream<T>? itemStream;
+  final int? itemsCount;
+  final Duration? period;
+  final Duration? duration;
+  final int? loop;
+  final int? startIndex;
+  final T? initValue;
+  final double? spacing;
+  final FlipDirection? direction;
 
   FlipPanel({
-    Key key,
+    Key? key,
     this.indexedItemBuilder,
     this.streamItemBuilder,
     this.itemStream,
@@ -455,10 +460,10 @@ class FlipPanel<T> extends StatefulWidget {
   /// otherwise the animation becomes jerky/stuttery.
   ///
   FlipPanel.builder({
-    Key key,
-    @required IndexedItemBuilder itemBuilder,
-    @required this.itemsCount,
-    @required this.period,
+    Key? key,
+    required IndexedItemBuilder itemBuilder,
+    required this.itemsCount,
+    required this.period,
     this.duration = const Duration(milliseconds: 500),
     this.loop = 1,
     this.startIndex = 0,
@@ -466,9 +471,9 @@ class FlipPanel<T> extends StatefulWidget {
     this.direction = FlipDirection.down,
   })  : assert(itemBuilder != null),
         assert(itemsCount != null),
-        assert(startIndex < itemsCount),
+        assert(startIndex! < itemsCount!),
         assert(period == null ||
-            period.inMilliseconds >= 2 * duration.inMilliseconds),
+            period.inMilliseconds >= 2 * duration!.inMilliseconds),
         indexedItemBuilder = itemBuilder,
         streamItemBuilder = null,
         itemStream = null,
@@ -481,9 +486,9 @@ class FlipPanel<T> extends StatefulWidget {
   /// * [itemBuilder] is called whenever a new value is emitted from [itemStream]
   ///
   FlipPanel.stream({
-    Key key,
-    @required this.itemStream,
-    @required StreamItemBuilder<T> itemBuilder,
+    Key? key,
+    required this.itemStream,
+    required StreamItemBuilder<T> itemBuilder,
     this.initValue,
     this.duration = const Duration(milliseconds: 500),
     this.spacing = 0.5,
@@ -503,23 +508,23 @@ class FlipPanel<T> extends StatefulWidget {
 
 class _FlipPanelState<T> extends State<FlipPanel>
     with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Animation _animation;
-  int _currentIndex;
-  bool _isReversePhase;
-  bool _isStreamMode;
-  bool _running;
+  late AnimationController _controller;
+  late Animation _animation;
+  late int? _currentIndex;
+  late bool _isReversePhase;
+  late bool _isStreamMode;
+  late bool _running;
   final _perspective = 0.003;
   final _zeroAngle =
       0.0001; // There's something wrong in the perspective transform, I use a very small value instead of zero to temporarily get it around.
-  int _loop;
-  T _currentValue, _nextValue;
-  Timer _timer;
-  StreamSubscription<T> _subscription;
+  late int _loop;
+  T? _currentValue, _nextValue;
+  Timer? _timer;
+  StreamSubscription<T>? _subscription;
 
-  Widget _child1, _child2;
-  Widget _upperChild1, _upperChild2;
-  Widget _lowerChild1, _lowerChild2;
+  Widget? _child1, _child2;
+  Widget? _upperChild1, _upperChild2;
+  Widget? _lowerChild1, _lowerChild2;
 
   @override
   void initState() {
@@ -530,39 +535,38 @@ class _FlipPanelState<T> extends State<FlipPanel>
     _running = false;
     _loop = 0;
 
-    _controller =
-        new AnimationController(duration: widget.duration, vsync: this)
-          ..addStatusListener((status) {
-            if (status == AnimationStatus.completed) {
-              _isReversePhase = true;
-              _controller.reverse();
-            }
-            if (status == AnimationStatus.dismissed) {
-              _currentValue = _nextValue;
-              _running = false;
-            }
-          })
-          ..addListener(() {
-            setState(() {
-              _running = true;
-            });
-          });
+    _controller = AnimationController(duration: widget.duration, vsync: this)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _isReversePhase = true;
+          _controller.reverse();
+        }
+        if (status == AnimationStatus.dismissed) {
+          _currentValue = _nextValue;
+          _running = false;
+        }
+      })
+      ..addListener(() {
+        setState(() {
+          _running = true;
+        });
+      });
     _animation =
         Tween(begin: _zeroAngle, end: math.pi / 2).animate(_controller);
 
     if (widget.period != null) {
-      _timer = Timer.periodic(widget.period, (_) {
-        if (widget.loop < 0 || _loop < widget.loop) {
-          if (_currentIndex + 1 == widget.itemsCount - 2) {
+      _timer = Timer.periodic(widget.period!, (_) {
+        if (widget.loop! < 0 || _loop < widget.loop!) {
+          if (_currentIndex! + 1 == widget.itemsCount! - 2) {
             _loop++;
           }
-          _currentIndex = (_currentIndex + 1) % widget.itemsCount;
+          _currentIndex = (_currentIndex! + 1) % widget.itemsCount!;
           _child1 = null;
           _isReversePhase = false;
           _controller.forward();
         } else {
-          _timer.cancel();
-          _currentIndex = (_currentIndex + 1) % widget.itemsCount;
+          _timer!.cancel();
+          _currentIndex = (_currentIndex! + 1) % widget.itemsCount!;
           setState(() {
             _running = false;
           });
@@ -572,7 +576,7 @@ class _FlipPanelState<T> extends State<FlipPanel>
 
     if (_isStreamMode) {
       _currentValue = widget.initValue;
-      _subscription = widget.itemStream.distinct().listen((value) {
+      _subscription = widget.itemStream!.distinct().listen((value) {
         if (_currentValue == null) {
           _currentValue = value;
         } else if (value != _currentValue) {
@@ -581,8 +585,8 @@ class _FlipPanelState<T> extends State<FlipPanel>
           _isReversePhase = false;
           _controller.forward();
         }
-      });
-    } else if (widget.loop < 0 || _loop < widget.loop) {
+      }) as StreamSubscription<T>;
+    } else if (widget.loop! < 0 || _loop < widget.loop!) {
       _controller.forward();
     }
   }
@@ -590,8 +594,8 @@ class _FlipPanelState<T> extends State<FlipPanel>
   @override
   void dispose() {
     _controller.dispose();
-    if (_subscription != null) _subscription.cancel();
-    if (_timer != null) _timer.cancel();
+    if (_subscription != null) _subscription!.cancel();
+    if (_timer != null) _timer!.cancel();
     super.dispose();
   }
 
@@ -625,37 +629,37 @@ class _FlipPanelState<T> extends State<FlipPanel>
 
     if (_running) {
       if (_child1 == null) {
-        _child1 = _child2 != null
-            ? _child2
-            : _isStreamMode
-                ? widget.streamItemBuilder(context, _currentValue)
-                : widget.indexedItemBuilder(
-                    context, _currentIndex % widget.itemsCount);
+        if (_child2 != null) {
+          _child1 = _child2;
+        } else {
+          _child1 = _isStreamMode
+              ? widget.streamItemBuilder!(context, _currentValue)
+              : widget.indexedItemBuilder!(
+                  context, _currentIndex! % widget.itemsCount!);
+        }
         _child2 = null;
-        _upperChild1 =
-            _upperChild2 != null ? _upperChild2 : makeUpperClip(_child1);
-        _lowerChild1 =
-            _lowerChild2 != null ? _lowerChild2 : makeLowerClip(_child1);
+        _upperChild1 = _upperChild2 ?? makeUpperClip(_child1!);
+        _lowerChild1 = _lowerChild2 ?? makeLowerClip(_child1!);
       }
       if (_child2 == null) {
         _child2 = _isStreamMode
-            ? widget.streamItemBuilder(context, _nextValue)
-            : widget.indexedItemBuilder(
-                context, (_currentIndex + 1) % widget.itemsCount);
-        _upperChild2 = makeUpperClip(_child2);
-        _lowerChild2 = makeLowerClip(_child2);
+            ? widget.streamItemBuilder!(context, _nextValue)
+            : widget.indexedItemBuilder!(
+                context, (_currentIndex! + 1) % widget.itemsCount!);
+        _upperChild2 = makeUpperClip(_child2!);
+        _lowerChild2 = makeLowerClip(_child2!);
       }
     } else {
-      _child1 = _child2 != null
-          ? _child2
-          : _isStreamMode
-              ? widget.streamItemBuilder(context, _currentValue)
-              : widget.indexedItemBuilder(
-                  context, _currentIndex % widget.itemsCount);
-      _upperChild1 =
-          _upperChild2 != null ? _upperChild2 : makeUpperClip(_child1);
-      _lowerChild1 =
-          _lowerChild2 != null ? _lowerChild2 : makeLowerClip(_child1);
+      if (_child2 != null) {
+        _child1 = _child2;
+      } else {
+        _child1 = _isStreamMode
+            ? widget.streamItemBuilder!(context, _currentValue)
+            : widget.indexedItemBuilder!(
+                context, _currentIndex! % widget.itemsCount!);
+      }
+      _upperChild1 = _upperChild2 ?? makeUpperClip(_child1!);
+      _lowerChild1 = _lowerChild2 ?? makeLowerClip(_child1!);
     }
   }
 
@@ -740,7 +744,7 @@ class _FlipPanelState<T> extends State<FlipPanel>
             children: [
               _buildUpperFlipPanel(),
               Padding(
-                padding: EdgeInsets.only(top: widget.spacing),
+                padding: EdgeInsets.only(top: widget.spacing!),
               ),
               _buildLowerFlipPanel(),
             ],
@@ -759,7 +763,7 @@ class _FlipPanelState<T> extends State<FlipPanel>
                         ..rotateX(_zeroAngle),
                       child: _upperChild1),
                   Padding(
-                    padding: EdgeInsets.only(top: widget.spacing),
+                    padding: EdgeInsets.only(top: widget.spacing!),
                   ),
                   Transform(
                       alignment: Alignment.topCenter,
